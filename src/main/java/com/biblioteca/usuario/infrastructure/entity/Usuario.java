@@ -29,6 +29,7 @@ public class Usuario implements UserDetails {
     private String email;
     @Column(name = "senha")
     private String senha;
+    @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Roles role;
     @Column(name = "data_criacao")
