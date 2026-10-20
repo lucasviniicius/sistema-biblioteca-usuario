@@ -1,0 +1,52 @@
+package com.biblioteca.usuario.controller;
+
+import com.biblioteca.usuario.business.UsuarioService;
+import com.biblioteca.usuario.business.dtos.LoginRequestDTO;
+import com.biblioteca.usuario.business.dtos.LoginResponseDTO;
+import com.biblioteca.usuario.business.dtos.UsuarioRequestDTO;
+import com.biblioteca.usuario.business.dtos.UsuarioResponseDTO;
+import com.biblioteca.usuario.infrastructure.security.SecurityConfig;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/usuario")
+@RequiredArgsConstructor
+@Tag(name = "Usuário", description = "Microserviço de Usuário")
+@SecurityRequirement(name = SecurityConfig.SECURITY_SCHEME)
+public class UsuarioController {
+    private final UsuarioService usuarioService;
+
+    @PostMapping
+    @Operation(
+            summary = "Cadastrar usuário",
+            description = "Cadastra um novo usuário no sistema da biblioteca."
+    )
+    public ResponseEntity<UsuarioResponseDTO> cadastrar(@Valid @RequestBody UsuarioRequestDTO request){
+        UsuarioResponseDTO usuario = usuarioService.cadastrar(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(usuario);
+    }
+
+    @PostMapping("/login")
+    @Operation(
+            summary = "Login de usuário",
+            description = "Login de usuário no sistema da biblioteca."
+    )
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request){
+        LoginResponseDTO response = usuarioService.login(request);
+
+        return ResponseEntity.ok(response);
+    }
+}
