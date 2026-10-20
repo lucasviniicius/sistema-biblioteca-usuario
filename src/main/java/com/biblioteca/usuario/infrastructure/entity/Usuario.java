@@ -7,6 +7,8 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -52,5 +54,17 @@ public class Usuario implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime agora = LocalDateTime.now();
+        dataCriacao = agora;
+        dataAtualizacao = agora;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        dataAtualizacao = LocalDateTime.now();
     }
 }
