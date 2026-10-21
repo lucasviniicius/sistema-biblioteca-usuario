@@ -11,12 +11,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import java.util.Collection;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/usuario")
@@ -46,6 +46,37 @@ public class UsuarioController {
     )
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request){
         LoginResponseDTO response = usuarioService.login(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/email/{email}")
+    @Operation(
+            summary = "Consultar usuário",
+            description = "Consulta de usuário por email no sistema da biblioteca."
+    )
+    public ResponseEntity<UsuarioResponseDTO> buscarPorEmail(@PathVariable String email, Authentication authentication){
+        String emailAutenticado = authentication.getName();
+
+        boolean administrador = authentication.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch("ROLE_ADMIN"::equals);
+
+        UsuarioResponseDTO response = usuarioService.buscarPorEmail(email, emailAutenticado, administrador);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    @Operation(
+            summary = "Consultar meu perfil",
+            description = "Consulta o próprio perfil no sistema da biblioteca."
+    )
+    public ResponseEntity<UsuarioResponseDTO> buscarMeuPerfil(Authentication authentication){
+        String emailAutenticado = authentication.getName();
+
+        UsuarioResponseDTO response = usuarioService.buscarMeuPerfil(emailAutenticado);
 
         return ResponseEntity.ok(response);
     }

@@ -7,9 +7,11 @@ import com.biblioteca.usuario.business.dtos.UsuarioResponseDTO;
 import com.biblioteca.usuario.business.mapper.UsuarioMapper;
 import com.biblioteca.usuario.infrastructure.entity.Usuario;
 import com.biblioteca.usuario.infrastructure.enums.Roles;
+import com.biblioteca.usuario.infrastructure.exception.UsuarioNaoEncontradoException;
 import com.biblioteca.usuario.infrastructure.repository.UsuarioRepository;
 import com.biblioteca.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -56,4 +58,29 @@ public class UsuarioService {
 
         return new LoginResponseDTO(token, "Bearer");
     }
+
+    public UsuarioResponseDTO buscarPorEmail(String email, String emailAutenticado, boolean administrador) {
+        Usuario usuario = usuarioRepository.findByEmail(email).
+                orElseThrow(() -> new UsuarioNaoEncontradoException(
+                        "Usuário não encontrado."
+                ));
+
+        if(!administrador && !email.equalsIgnoreCase(emailAutenticado)){
+            throw new AccessDeniedException(
+                    "Você não tem permissão para consultar esse usuário."
+            );
+        }
+
+        return usuarioMapper.toResponseDTO(usuario);
+    }
+
+    public UsuarioResponseDTO buscarMeuPerfil(String emailAutenticado){
+        Usuario usuario = usuarioRepository.findByEmail(emailAutenticado)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(
+                "Usuário não encontrado."
+        ));
+
+        return usuarioMapper.toResponseDTO(usuario);
+    }
+
 }
