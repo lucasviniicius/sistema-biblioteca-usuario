@@ -1,5 +1,6 @@
 package com.biblioteca.usuario.handler;
 
+import com.biblioteca.usuario.infrastructure.exception.UsuarioNaoEncontradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -20,6 +21,18 @@ public class GlobalHandlerException {
                 .body(Map.of(
                         "erro", "Não autorizado",
                         "mensagem", "E-mail ou senha inválidos."
+                ));
+    }
+
+    @ExceptionHandler(UsuarioNaoEncontradoException.class)
+    public ResponseEntity<Map<String, String>> handleUsuarioNaoEncontrado(
+            UsuarioNaoEncontradoException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Map.of(
+                        "erro", "Não encontrado",
+                        "mensagem", ex.getMessage()
                 ));
     }
 }
