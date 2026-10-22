@@ -1,10 +1,7 @@
 package com.biblioteca.usuario.controller;
 
 import com.biblioteca.usuario.business.UsuarioService;
-import com.biblioteca.usuario.business.dtos.LoginRequestDTO;
-import com.biblioteca.usuario.business.dtos.LoginResponseDTO;
-import com.biblioteca.usuario.business.dtos.UsuarioRequestDTO;
-import com.biblioteca.usuario.business.dtos.UsuarioResponseDTO;
+import com.biblioteca.usuario.business.dtos.*;
 import com.biblioteca.usuario.infrastructure.security.SecurityConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -77,6 +74,17 @@ public class UsuarioController {
         String emailAutenticado = authentication.getName();
 
         UsuarioResponseDTO response = usuarioService.buscarMeuPerfil(emailAutenticado);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/me")
+    @Operation(
+            summary = "Atualizar meu perfil",
+            description = "Atualiza o próprio perfil no sistema da biblioteca."
+    )
+    public ResponseEntity<UsuarioResponseDTO> atualizarMeuPerfil(@RequestBody @Valid UsuarioAtualizacaoDTO request, Authentication authentication){
+        UsuarioResponseDTO response = usuarioService.atualizarMeuPerfil(authentication.getName(), request);
 
         return ResponseEntity.ok(response);
     }
