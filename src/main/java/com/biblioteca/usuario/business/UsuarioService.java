@@ -1,9 +1,6 @@
 package com.biblioteca.usuario.business;
 
-import com.biblioteca.usuario.business.dtos.LoginRequestDTO;
-import com.biblioteca.usuario.business.dtos.LoginResponseDTO;
-import com.biblioteca.usuario.business.dtos.UsuarioRequestDTO;
-import com.biblioteca.usuario.business.dtos.UsuarioResponseDTO;
+import com.biblioteca.usuario.business.dtos.*;
 import com.biblioteca.usuario.business.mapper.UsuarioMapper;
 import com.biblioteca.usuario.infrastructure.entity.Usuario;
 import com.biblioteca.usuario.infrastructure.enums.Roles;
@@ -17,6 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Service
@@ -83,4 +82,35 @@ public class UsuarioService {
         return usuarioMapper.toResponseDTO(usuario);
     }
 
+    public UsuarioResponseDTO atualizarMeuPerfil(String emailAutenticado, UsuarioAtualizacaoDTO request){
+        Usuario usuario = usuarioRepository.findByEmail(emailAutenticado)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException(
+                        "Usuário não encontrado."
+                ));
+
+        if(request.nome() != null){
+            usuario.setNome(request.nome());
+        }
+
+        if(request.email() != null){
+            boolean emailEmUso = usuarioRepository.existsByEmail(request.email())
+                    && !usuario.getEmail().equalsIgnoreCase(request.email());
+
+            if(emailEmUso){
+                throw new IllegalArgumentException(
+                        "Este email já está cadastrado."
+                );
+            }
+
+            usuario.setEmail(request.email());
+        }
+
+        if(request.senha() != null){
+            usuario.setSenha(passwordEncoder.encode(request.senha()));
+        }
+
+        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+
+        return usuarioMapper.toResponseDTO(usuarioAtualizado);
+    }
 }

@@ -34,7 +34,7 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Roles role;
-    @Column(name = "data_criacao")
+    @Column(name = "data_criacao", updatable = false)
     private LocalDateTime dataCriacao;
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
@@ -59,12 +59,12 @@ public class Usuario implements UserDetails {
     @PrePersist
     public void prePersist() {
         LocalDateTime agora = LocalDateTime.now();
-        dataCriacao = agora;
-        dataAtualizacao = agora;
+        this.dataCriacao = agora;
+        this.dataAtualizacao = agora;
     }
 
     @PreUpdate
     public void preUpdate() {
-        dataAtualizacao = LocalDateTime.now();
+        this.dataAtualizacao = LocalDateTime.now();
     }
 }
