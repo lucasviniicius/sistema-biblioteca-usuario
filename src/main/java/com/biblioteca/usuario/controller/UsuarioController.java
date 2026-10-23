@@ -88,4 +88,23 @@ public class UsuarioController {
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{email}")
+    @Operation(
+            summary = "Excluir usuário",
+            description = "Exclui o usuário no sistema da biblioteca."
+    )
+    public ResponseEntity<Void> excluir(@PathVariable String email, Authentication authentication){
+        String emailAutenticado = authentication.getName();
+
+        boolean administrador = authentication.getAuthorities()
+                .stream()
+                .anyMatch(autoridade ->
+                        autoridade.getAuthority().equals("ROLE_ADMIN")
+                );
+
+        usuarioService.excluir(email, emailAutenticado, administrador);
+
+        return ResponseEntity.noContent().build();
+    }
 }
