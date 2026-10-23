@@ -113,4 +113,18 @@ public class UsuarioService {
 
         return usuarioMapper.toResponseDTO(usuarioAtualizado);
     }
+
+    public void excluir(String email, String emailAutenticado, boolean administrador){
+        if(!administrador && !email.equalsIgnoreCase(emailAutenticado)){
+            throw new AccessDeniedException(
+                    "Você não tem permissão para excluir outro usuário."
+            );
+        }
+
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
+                () -> new UsuarioNaoEncontradoException("Usuário não encontrado.")
+        );
+
+        usuarioRepository.delete(usuario);
+    }
 }
