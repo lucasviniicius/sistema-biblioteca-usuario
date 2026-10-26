@@ -13,6 +13,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/biblioteca_usuario
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: biblioteca_usuario
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d biblioteca_usuario"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,8 +56,5 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build
-
-      - name: Build project
+      - name: Build and test with Gradle
         run: ./gradlew build
